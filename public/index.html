@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+
+<body>
+    <h1>Download files using the WebTorrent protocol (BitTorrent over WebRTC).</h1>
+    <!-- Include the latest version of WebTorrent -->
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <input type="text" id="contentId" style="width: 80%; display: block; height: 20px; margin-bottom: 10px;">
+    <button onclick="loadVideo()">load</button>
+    <div class="videoBody"></div>
+    <script>
+        let btHost = 'localhost';
+        let btPort = '8000';
+        let dhtPort = '20000';
+        let announceList = ['http://' + btHost + ':' + btPort, 'udp://' + btHost + ':' + btPort, 'ws://' + btHost + ':' + btPort];
+        let client = new WebTorrent({ dht: { bootstrap: btHost + ':' + dhtPort } });
+        client.on('torrent', function (torrent) {
+            console.log("On Torrent", torrent.files[0].length);
+        })
+        client.on('error', function (err) {
+            console.log("On Error", err);
+        })
+
+        /*
+        var torrentId = 'magnet:?xt=urn:btih:58aaaf7ff1854f0aaad111be267fcfa7dc45ccc6&dn=480.mp4&tr=http%3A%2F%2Flocalhost%3A8000&tr=udp%3A%2F%2Flocalhost%3A8000&tr=ws%3A%2F%2Flocalhost%3A8000'
+        client.add(torrentId, function (torrent) {
+            console.log('torrenId', torrent.infoHash)
+            // Torrents can contain many files. Let's use the .mp4 file
+            var file = torrent.files.find(function (file) {
+                return file.name.endsWith('.mp4')
+            })
+            // Display the file by adding it to the DOM.
+            // Supports video, audio, image files, and more!
+            file.appendTo('body')
+        })*/
+
+        function loadVideo() {
+            $.ajax({
+                url: "http://" + btHost + ":8080/torrent/" + $('#contentId').val(),
+                dataType: 'json'
+            })
+            .done(function (data) {
+                console.log('data', data);
+                client.add(data.torrentId, function (torrent) {
+                    console.log('torrenId', torrent.infoHash)
+                    // Torrents can contain many files. Let's use the first file
+                    var file = torrent.files[0]
+                    file.appendTo('.videoBody')
+                })
+            });
+        }
+    </script>
+</body>
+
+</html>
