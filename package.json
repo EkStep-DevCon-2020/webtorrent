@@ -4,7 +4,7 @@
   "main": "seed.js",
   "repository": {},
   "dependencies": {
-    "async": "~3.1.0",
+    "async": "~3.2.2",
     "bittorrent-dht": "*",
     "body-parser": "~1.18.3",
     "compression": "^1.7.4",
